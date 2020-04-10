@@ -42,7 +42,7 @@ module Dependabot
     end
 
     def path
-      Pathname.new(File.join(directory, name)).cleanpath.to_path
+      Pathname.new(File.join(directory, File.basename(name))).cleanpath.to_path
     end
 
     def ==(other)
