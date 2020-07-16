@@ -12,12 +12,14 @@ RSpec.describe Dependabot::Gradle::UpdateChecker::VersionFinder do
       dependency_files: dependency_files,
       credentials: credentials,
       ignored_versions: ignored_versions,
+      raise_on_ignored: raise_on_ignored,
       security_advisories: security_advisories
     )
   end
   let(:version_class) { Dependabot::Gradle::Version }
   let(:credentials) { [] }
   let(:ignored_versions) { [] }
+  let(:raise_on_ignored) { false }
   let(:security_advisories) { [] }
 
   let(:dependency) do
@@ -83,10 +85,61 @@ RSpec.describe Dependabot::Gradle::UpdateChecker::VersionFinder do
       end
     end
 
+    context "when the user has asked for a version type and it's available" do
+      let(:dependency_name) { "com.thoughtworks.xstream:xstream" }
+      let(:dependency_version) { "1.4.11.1" }
+
+      let(:maven_central_metadata_url) do
+        "https://repo.maven.apache.org/maven2/"\
+        "com/thoughtworks/xstream/xstream/maven-metadata.xml"
+      end
+      let(:maven_central_releases) do
+        fixture("maven_central_metadata", "with_version_type_releases.xml")
+      end
+      let(:dependency_version) { "1.4.11-java7" }
+      its([:version]) { is_expected.to eq(version_class.new("1.4.12-java7")) }
+    end
+
+    context "when a version type is available that wasn't requested" do
+      let(:dependency_name) { "com.thoughtworks.xstream:xstream" }
+      let(:dependency_version) { "1.4.11.1" }
+
+      let(:maven_central_metadata_url) do
+        "https://repo.maven.apache.org/maven2/"\
+        "com/thoughtworks/xstream/xstream/maven-metadata.xml"
+      end
+      let(:maven_central_releases) do
+        fixture("maven_central_metadata", "with_version_type_releases.xml")
+      end
+      let(:dependency_version) { "1.4.11.1" }
+      its([:version]) { is_expected.to eq(version_class.new("1.4.12")) }
+    end
+
     context "when the user has asked to ignore a major version" do
+      let(:ignored_versions) { ["[23.0,24)"] }
+      let(:dependency_version) { "17.0" }
+      its([:version]) { is_expected.to eq(version_class.new("22.0")) }
+    end
+
+    context "when a version range is specified using Ruby syntax" do
       let(:ignored_versions) { [">= 23.0, < 24"] }
       let(:dependency_version) { "17.0" }
       its([:version]) { is_expected.to eq(version_class.new("22.0")) }
+    end
+
+    context "when the user has asked to ignore all versions" do
+      let(:ignored_versions) { [">= 0"] }
+      let(:dependency_version) { "17.0" }
+      it "returns nil" do
+        expect(subject).to be_nil
+      end
+
+      context "raise_on_ignored" do
+        let(:raise_on_ignored) { true }
+        it "raises an error" do
+          expect { subject }.to raise_error(Dependabot::AllVersionsIgnored)
+        end
+      end
     end
 
     context "when the current version isn't normal" do
