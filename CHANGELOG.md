@@ -1,3 +1,111 @@
+## v0.118.7, 2 July 2020
+
+- Python: support binary path dependencies when using requirements.txt/in files
+
+## v0.118.6, 30 June 2020
+
+- Bump phpstan/phpstan from 0.12.30 to 0.12.31 in /composer/helpers
+- Bump composer/composer from 1.10.7 to 1.10.8 in /composer/helpers
+- Prefer exact match for 'security' label @qnighy
+
+## v0.118.5, 24 June 2020
+
+- Actions: Fix multiple sources matching major versions
+- Maven: Add support for dependency classifiers @a1flecke
+- Add support for `+` separator when calculating semver change @a1flecke
+- Bump eslint from 7.3.0 to 7.3.1 in /npm_and_yarn/helpers
+- Bump prettier from 2.0.4 to 2.0.5 in /npm_and_yarn/helpers
+- Bump jason from 1.2.0 to 1.2.1 in /hex/helpers
+- Bump eslint from 7.2.0 to 7.3.0 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.29 to 0.12.30 in /composer/helpers
+
+## v0.118.4, 19 June 2020
+
+- Safely output markdown from link_and_mention_sanitizer
+- Bump composer/composer from 1.10.6 to 1.10.7 in /composer/helpers
+
+## v0.118.3, 18 June 2020
+
+- Correctly handle path dependencies in composer
+- Bump eslint from 6.8.0 to 7.2.0 in /npm_and_yarn/helpers
+- Bump composer/composer from 1.9.3 to 1.10.6 in /composer/helpers
+- Bump eslint-plugin-prettier from 3.1.3 to 3.1.4 in /npm_and_yarn/helpers
+- Bump cython from 0.29.19 to 0.29.20 in /python/helpers
+- Bump pip-tools from 5.1.2 to 5.2.1 in /python/helpers
+- Bump phpstan/phpstan from 0.12.19 to 0.12.29 in /composer/helpers
+- Bump poetry from 1.0.8 to 1.0.9 in /python/helpers
+- Bump hashin from 0.14.6 to 0.15.0 in /python/helpers
+- [Python] Add parsing of environment markers (@mayeut)
+
+## v0.118.2, 16 June 2020
+
+- GitHub Actions: Handle multiple sources for the same action
+- Gradle: Add support for properties set as defaults, supports both the
+  findProperty and hasProperty syntax styles.
+- Nuget: Added support for <PackageVersion> elements with MSBuild projects
+- GitLab: Add pull_request_updater
+- Handle missing repo when fetching recent commits
+- Handle new protected branch error when updating PRs
+- Update rubocop requirement from ~> 0.83.0 to ~> 0.85.0 in /common
+- Upgrade poetry to 1.0.8
+- Update vcr requirement from = 5.0 to = 6.0.0 in /common
+- Update gitlab requirement from = 4.14.1 to = 4.15.0 in /common
+- Specs: Update rubygems index and stubbed info responses
+
+## v0.118.1, 4 June 2020
+
+- Handle cargo native dependencies
+- Fix failing non-existing author email (@hsyn)
+- docker-dev-shell --rebuild no args
+
+## v0.118.0, 29 May 2020
+
+- Remove support for jinja requimrents files
+- Upgrade python helpers to latest version of pip
+- Bump pip from 19.3.1 to 20.1.1
+- Bump pip-tools from 4.5.1 to 5.1.2 in /python/helpers
+
+## v0.117.11, 28 May 2020
+
+- Optionally raise Dependabot::AllVersionsIgnored when all potential updates are ignored
+- Update Python version to 3.8.3 and 2.8.18 (@ulgens)
+
+## v0.117.10, 21 May 2020
+
+- Always use exact dependencies label if one exists
+- Bump cython from 0.29.18 to 0.29.19 in /python/helpers
+- go_modules: Handle multiline errors
+- docker-dev-shell: rebuild core image when passing `--rebuild` option
+
+## v0.117.9, 19 May 2020
+
+- Handle protected branches enforcing linear history
+- Bump cython from 0.29.17 to 0.29.18 in /python/helpers
+- Update rubocop requirement from ~> 0.82.0 to ~> 0.83.0 in /common
+
+## v0.117.8, 12 May 2020
+
+- gradle: Fix version types in gradle to allow matching postfixed version types
+- bundler: Sanitize Dir.chdir calls in gemspecs
+- go_modules: Remove unnecessary `require`s from go.mod
+- dependencies: Fix acorn vulnerability
+
+## v0.117.7, 20 April 2020
+
+- Nuget: Handle version requirements with suffix
+- Bump eslint-plugin-prettier from 3.1.2 to 3.1.3 in /npm_and_yarn/helpers
+- Bump jest from 25.3.0 to 25.4.0 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.18 to 0.12.19 in /composer/helpers
+- Update rubocop requirement from ~> 0.80.1 to ~> 0.82.0 in /common
+- Bump friendsofphp/php-cs-fixer in /composer/helpers
+- Bump semver from 7.1.3 to 7.3.2 in /npm_and_yarn/helpers
+
+## v0.117.6, 9 April 2020
+
+- Handle unauthorized pushes to protected branches
+- Bump jest from 25.2.3 to 25.3.0 in /npm_and_yarn/helpers
+- Bump prettier from 2.0.2 to 2.0.4 in /npm_and_yarn/helpers
+
 ## v0.117.5, 31 March 2020
 
 - Adds python 3.7.7 (@sobolevn)
