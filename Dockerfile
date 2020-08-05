@@ -67,16 +67,16 @@ RUN apt-get install -y software-properties-common \
 ENV PYENV_ROOT=/usr/local/.pyenv \
     PATH="/usr/local/.pyenv/bin:$PATH"
 RUN git clone https://github.com/pyenv/pyenv.git /usr/local/.pyenv \
-    && cd /usr/local/.pyenv && git checkout cf81e5a0c47ab09d8f760e2bb9172196d9602fde && cd - \
-    && pyenv install 3.8.3 \
+    && cd /usr/local/.pyenv && git checkout v1.2.20 && cd - \
+    && pyenv install 3.8.5 \
     && pyenv install 2.7.18 \
-    && pyenv global 3.8.3
+    && pyenv global 3.8.5
 
 
 ### JAVASCRIPT
 
 # Install Node 10.0 and Yarn
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
     && apt-get install -y nodejs \
     && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
@@ -98,11 +98,36 @@ RUN npm install elm@0.18.0 \
 
 # Install PHP 7.4 and Composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:1.10.9 /usr/bin/composer /usr/local/bin/composer
 RUN add-apt-repository ppa:ondrej/php \
     && apt-get update \
-    && apt-get install -y php7.4 php7.4-cli php7.4-xml php7.4-json php7.4-zip php7.4-mbstring php7.4-intl php7.4-common php7.4-gettext php7.4-curl php7.4-bcmath php7.4-gmp php7.4-imagick php7.4-gd php7.4-redis php7.4-soap php7.4-ldap php7.4-memcached php7.4-sqlite3 php7.4-apcu php7.4-tidy php7.4-mongodb php7.4-zmq php7.4-mysql php7.4-imap php7.4-geoip \
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
+    && apt-get install -y \
+      php7.4 \
+      php7.4-apcu \
+      php7.4-bcmath \
+      php7.4-cli \
+      php7.4-common \
+      php7.4-curl \
+      php7.4-gd \
+      php7.4-geoip \
+      php7.4-gettext \
+      php7.4-gmp \
+      php7.4-imagick \
+      php7.4-imap \
+      php7.4-intl \
+      php7.4-json \
+      php7.4-ldap \
+      php7.4-mbstring \
+      php7.4-memcached \
+      php7.4-mongodb \
+      php7.4-mysql \
+      php7.4-redis \
+      php7.4-soap \
+      php7.4-sqlite3 \
+      php7.4-tidy \
+      php7.4-xml \
+      php7.4-zip \
+      php7.4-zmq
 
 
 ### GO
@@ -139,13 +164,13 @@ RUN export CARGO_HOME=/opt/rust ; curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ### NEW NATIVE HELPERS
 
-COPY terraform/helpers /opt/terraform/helpers
-COPY python/helpers /opt/python/helpers
+COPY composer/helpers /opt/composer/helpers
 COPY dep/helpers /opt/dep/helpers
 COPY go_modules/helpers /opt/go_modules/helpers
 COPY hex/helpers /opt/hex/helpers
-COPY composer/helpers /opt/composer/helpers
 COPY npm_and_yarn/helpers /opt/npm_and_yarn/helpers
+COPY python/helpers /opt/python/helpers
+COPY terraform/helpers /opt/terraform/helpers
 
 ENV DEPENDABOT_NATIVE_HELPERS_PATH="/opt" \
     PATH="$PATH:/opt/terraform/bin:/opt/python/bin:/opt/go_modules/bin:/opt/dep/bin" \
