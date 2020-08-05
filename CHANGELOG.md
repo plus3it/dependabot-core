@@ -1,3 +1,44 @@
+## v0.118.10, 3 August 2020
+
+- Bump jest from 26.2.1 to 26.2.2 in /npm_and_yarn/helpers
+- Bump eslint from 7.5.0 to 7.6.0 in /npm_and_yarn/helpers
+- Encode '@' in python HTTP basic auth passwords
+
+## v0.118.9, 3 August 2020
+
+- CI: Move from Circle CI to actions
+- CI: Use job matrix @localheinz
+- Composer: Best practices for 7.4 @localheinz
+- Composer: Explicitly require latest stable version of composer/composer @localheinz
+- Actions: Fix updating actions that are quoted
+- Bump jest from 26.1.0 to 26.2.1 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.33 to 0.12.34 in /composer/helpers
+- Bump pip-tools from 5.2.1 to 5.3.0 in /python/helpers
+
+## v0.118.8, 24 July 2020
+
+- Upgrade Python version to 3.8.5 (@ulgens)
+- Copy composer from the composer image
+- Attempt to fix error where version is added to path dependency (@jtbeach)
+- Undefined names: import PipSession and parse_requirements
+- Update python/spec/dependabot/python/update_checker/pipenv_version_resolver_spec.rb
+- Upgrade default python version to 3.8.4 (@ulgens)
+- Update excon to 0.75.0
+- Bump friendsofphp/php-cs-fixer in /composer/helpers
+- Bump npm-registry-fetch from 4.0.3 to 4.0.5 in /npm_and_yarn/helpers
+- Bump composer/composer from 1.10.8 to 1.10.9 in /composer/helpers
+- Bump cython from 0.29.20 to 0.29.21 in /python/helpers
+- Bump phpstan/phpstan from 0.12.31 to 0.12.33 in /composer/helpers
+- Update gitlab requirement from = 4.15.0 to = 4.16.1 in /common
+- Bump eslint from 7.4.0 to 7.5.0 in /npm_and_yarn/helpers
+- Fix npm indentation spec
+- Add rubygems stubbed info responses
+- Bump rubocop to 0.88.0
+- Fix docker-dev-shell ruby/php build
+- Add native version range syntax support for NuGet (@eager)
+- Bump eslint from 7.3.1 to 7.4.0 in /npm_and_yarn/helpers
+- Use Maven version ranges for ignored_versions in Maven and Gradle (@eager)
+
 ## v0.118.7, 2 July 2020
 
 - Python: support binary path dependencies when using requirements.txt/in files
