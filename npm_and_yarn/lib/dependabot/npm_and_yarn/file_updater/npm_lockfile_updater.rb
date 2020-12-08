@@ -286,7 +286,7 @@ module Dependabot
                                                                lockfile)
           lockfile_dir = Pathname.new(lockfile.name).dirname
           modules_path = lockfile_dir.join("node_modules")
-          # Note: don't include the dependency names to prevent opening
+          # NOTE: don't include the dependency names to prevent opening
           # multiple issues for each dependency that fails because we unique
           # issues on the error message (issue detail) on the backend
           #
@@ -328,9 +328,7 @@ module Dependabot
 
         def resolvable_before_update?(lockfile)
           @resolvable_before_update ||= {}
-          if @resolvable_before_update.key?(lockfile.name)
-            return @resolvable_before_update[lockfile.name]
-          end
+          return @resolvable_before_update[lockfile.name] if @resolvable_before_update.key?(lockfile.name)
 
           @resolvable_before_update[lockfile.name] =
             begin

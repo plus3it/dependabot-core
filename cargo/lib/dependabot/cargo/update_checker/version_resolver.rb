@@ -15,8 +15,10 @@ module Dependabot
           /Unable to update (?<url>.*?)$/.freeze
         BRANCH_NOT_FOUND_REGEX =
           /#{UNABLE_TO_UPDATE}.*to find branch `(?<branch>[^`]+)`/m.freeze
+        REVSPEC_PATTERN = /revspec '.*' not found/.freeze
+        OBJECT_PATTERN = /object not found - no match for id \(.*\)/.freeze
         REF_NOT_FOUND_REGEX =
-          /#{UNABLE_TO_UPDATE}.*revspec '.*' not found/m.freeze
+          /#{UNABLE_TO_UPDATE}.*(#{REVSPEC_PATTERN}|#{OBJECT_PATTERN})/m.freeze
 
         def initialize(dependency:, credentials:,
                        original_dependency_files:, prepared_dependency_files:)
@@ -80,6 +82,7 @@ module Dependabot
 
         # rubocop:disable Metrics/PerceivedComplexity
         # rubocop:disable Metrics/CyclomaticComplexity
+        # rubocop:disable Metrics/AbcSize
         def better_specification_needed?(error)
           return false if @custom_specification
           return false unless error.message.match?(/specification .* is ambigu/)
@@ -108,6 +111,7 @@ module Dependabot
           @custom_specification = spec_options.first
           true
         end
+        # rubocop:enable Metrics/AbcSize
         # rubocop:enable Metrics/CyclomaticComplexity
         # rubocop:enable Metrics/PerceivedComplexity
 
@@ -210,9 +214,7 @@ module Dependabot
             raise Dependabot::GitDependencyReferenceNotFound, dependency_url
           end
 
-          if resolvability_error?(error.message)
-            raise Dependabot::DependencyFileNotResolvable, error.message
-          end
+          raise Dependabot::DependencyFileNotResolvable, error.message if resolvability_error?(error.message)
 
           if workspace_native_library_update_error?(error.message)
             # This happens when we're updating one part of a workspace which
@@ -369,16 +371,12 @@ module Dependabot
 
           object.delete("bin")
 
-          if object.dig("package", "default-run")
-            object["package"].delete("default-run")
-          end
+          object["package"].delete("default-run") if object.dig("package", "default-run")
 
           package_name = object.dig("package", "name")
           return TomlRB.dump(object) unless package_name&.match?(/[\{\}]/)
 
-          if lockfile
-            raise "Sanitizing name for pkg with lockfile. Investigate!"
-          end
+          raise "Sanitizing name for pkg with lockfile. Investigate!" if lockfile
 
           object["package"]["name"] = "sanitized"
           TomlRB.dump(object)

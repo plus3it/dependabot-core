@@ -1,3 +1,324 @@
+## v0.126.0, 8 December 2020
+
+- pip-compile: Fix building native python dependencies
+- pipenv: handle installs with missing system dependencies
+- docker: support platform option in from line @ttshivers
+- Bump pip from 20.1.1 to 20.3.1 in /python/helpers
+- Bump golang.org/x/mod from 0.3.0 to 0.4.0 in /go_modules/helpers
+- Bump @npmcli/arborist from 1.0.13 to 1.0.14 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.58 to 0.12.59 in /composer/helpers
+- Bump friendsofphp/php-cs-fixer in /composer/helpers
+- Bump eslint from 7.14.0 to 7.15.0 in /npm_and_yarn/helpers
+- Bump eslint-plugin-prettier from 3.1.4 to 3.2.0 in /npm_and_yarn/helpers
+- Bump semver from 7.3.2 to 7.3.4 in /npm_and_yarn/helpers
+- Update rubocop requirement from ~> 1.4.2 to ~> 1.5.0 in /common
+
+## v0.125.7, 30 November 2020
+
+- Bump jest from 26.6.2 to 26.6.3 in /npm_and_yarn/helpers
+- Bump prettier from 2.1.2 to 2.2.1 in /npm_and_yarn/helpers
+- Bump @npmcli/arborist from 1.0.12 to 1.0.13 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.53 to 0.12.58 in /composer/helpers
+- Bump pip-tools from 5.3.1 to 5.4.0 in /python/helpers
+- Update rubocop requirement from ~> 0.93.0 to ~> 1.4.2 in /common
+- Update simplecov requirement from ~> 0.19.0 to ~> 0.20.0 in /common
+- Update gitlab requirement from = 4.16.1 to = 4.17.0 in /common
+- Bundler: filter relevant credentials for all native helpers @baseballlover723
+- CI: Fix dependabot-core-ci build by removing buildkit caching
+
+## v0.125.6, 27 November 2020
+
+- Pip compile: raise DependencyFileNotRqesolvable error when initial manifest
+  files are unresolvable
+- JS: Handle rate limited npm package requests
+- Go mod: verify Dependabot::GitDependenciesNotReachable from versioned
+- dry-run: add exception handling and re-raise on unknown errors
+
+## v0.125.5, 25 November 2020
+
+- go_modules: raise Dependabot::GitDependenciesNotReachable for dependencies missing from github.com
+- JS: Prefer the npm conflicting dependency parser
+- Clean go_modules build cache in dependabot/dependabot-core docker image
+- Check Azure PR description against utf-16 encoded length
+- Bump @npmcli/arborist from 1.0.10 to 1.0.12 in /npm_and_yarn/helpers
+- Bump npm from 6.14.8 to 6.14.9 in /npm_and_yarn/helpers
+- Bump eslint from 7.12.1 to 7.14.0 in /npm_and_yarn/helpers
+
+## v0.125.4, 17 November 2020
+
+- Yarn: Explain conflicting top-level dependency
+
+## v0.125.3, 16 November 2020
+
+- Bundler: Add top-level dependency to conflict explanation
+- Use conflicting deps explanation in the dry-run script
+- Bundler: Add explanation message to conflicting dependencies
+- Add js helper README with debugging tips.
+- JS: Include the top-level npm dependency for conflicting dependencies
+- Hex: support reading files in elixir supporting files like in mixfiles (@baseballlover723)
+- Update simplecov-console requirement from ~> 0.7.2 to ~> 0.8.0
+- Bump @npmcli/arborist from 1.0.9 to 1.0.10 in /npm_and_yarn/helpers
+- Hex: support elixir `Code.require_file` like `Code.eval_file` (@baseballlover723)
+
+## v0.125.2, 11 November 2020
+
+- Update CI jobs env variable assignment (@baseballlover723)
+- Hex: Support elixir `Code.eval_file` without specifying a relative directory (@baseballlover723)
+- JS: Explain update not possible for yarn and npm
+- Extract DependencyFileBuilder to remove duplication
+
+## v0.125.1, 5 November 2020
+
+- Escape `SharedHelpers.run_shell_command` with shellwords
+
+## v0.125.0, 5 November 2020
+
+- Bundler: Explain why security update was not possible
+- Raise descriptive error when update is not possible
+- Go mod: Handle post-v0 module path updates
+
+## v0.124.8, 4 November 2020
+
+- Add missing python versions: 3.6.12 3.6.11 3.6.10, 3.5.10 and 3.5.8
+
+## v0.124.7, 3 November 2020
+
+- composer: assume a helper terminated by `SIGKILL` is OutOfMemory
+- dry-run: handle comma separated list of deps
+- Bump jest from 26.6.1 to 26.6.2 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.49 to 0.12.53 in /composer/helpers
+- Bump npm-user-validate from 1.0.0 to 1.0.1 in /npm_and_yarn/helpers
+
+## v0.124.6, 2 November 2020
+
+- Go mod: handle major version mismatch
+- Cargo: handle caret version requirements
+
+## v0.124.5, 30 October 2020
+
+- Go mod: Bump gomodules-extracted [from commit](https://github.com/golang/go/commit/5b509d993d3a3a212b4033815be8b7b439fac672)
+- Go mod: Add/fix specs for missing meta tag and packages that 404
+
+## v0.124.4, 30 October 2020
+
+- Ignore go files that start with underscore or dot
+- Go mod: handle missing package url meta tags
+- Ignore go files tagged with `+build`
+- Handle missing VCS when converting git_source path
+- Fix relative dir on mac where tmp is in /private
+- Handle missing directory in cloned repo
+- Improve relative path code in vendor updater
+- Correctly handle vendored updates in nested directory
+- Raise generic DependabotError when all else fails
+- Mark unknown revision errors as DependencyFileNotResolvable
+- Include backtrace from native bundler helpers
+- Mount native bundler helpers in dev shell
+- Bump friendsofphp/php-cs-fixer in /composer/helpers
+
+## v0.124.3, 27 October 2020
+
+- Rename fixes_advisory? to fixed_by? and handle mixed case names
+- dry-run: add security_updates_only
+- Bump eslint from 7.12.0 to 7.12.1 in /npm_and_yarn/helpers
+
+## v0.124.2, 26 October 2020
+
+- Add fixes_advisory? and affects_version? to security advisory
+- Bump jest from 26.6.0 to 26.6.1 in /npm_and_yarn/helpers
+- Bump composer/composer from 1.10.15 to 1.10.16 in /composer/helpers
+- Bump poetry from 1.1.2 to 1.1.4 in /python/helpers
+- Bump eslint from 7.11.0 to 7.12.0 in /npm_and_yarn/helpers
+
+## v0.124.1, 22 October 2020
+
+- Add lowest_security_fix_version method to update checkers
+
+## v0.124.0, 20 October 2020
+
+- Go: Promote experimental `go mod tidy` support to stable
+  (i.e., always tidy if repo_contents_path is given)
+- Go: Promote experimental `go mod vendor` support to stable
+  (i.e., always vendor if repo_contents_path is given and vendor/modules.txt is present)
+- Bump jest from 26.5.3 to 26.6.0 in /npm_and_yarn/helpers
+- Bump object-path from 0.11.4 to 0.11.5 in /npm_and_yarn/helpers
+- Bump composer/composer from 1.10.10 to 1.10.15 in /composer/helpers
+
+## v0.123.1, 19 October 2020
+
+- Go mod: Handle `cannot find module` during go mod tidy
+- Python: Add 3.9.0 and upgrade pyenv to v1.2.21 (@ulgens)
+- Bundler: Ignore changed .gemspec from vendor/cache folder
+
+## v0.123.0, 13 October 2020
+
+- Bundler: Refactored Dependabot's use of Bundler commands to shell out instead
+  of running in a forked process.
+  - This aligns Bundler with other package managers and will enable us to
+    support other Bundler versions in future.
+
+## v0.122.1, 13 October 2020
+
+- Bump phpstan/phpstan from 0.12.48 to 0.12.49 in /composer/helpers
+- Gracefully handle gomod package import that has changed
+- Treat .bundlecache files as binary
+- Check if files are binary using the `file` util
+- Bump jest from 26.5.2 to 26.5.3 in /npm_and_yarn/helpers
+- Bump eslint from 7.10.0 to 7.11.0 in /npm_and_yarn/helpers
+- Update tests and fixtures for new Cargo.lock format
+- Explicitly install version of rust toolchain
+- Rust toolchain has been upgraded to 1.47.0. This means PRs will now try to
+  upgrade the lockfile to cargo's v2 format.
+- Update rubocop requirement from ~> 0.92.0 to ~> 0.93.0 in /common
+- Add a fingerprint to generated gitconfigs
+- If there isn't a backup gitconfig, remove the generated one
+- dry-run: updater-opts via option
+
+## v0.122.0, 7 October 2020
+
+- Add experimental support for `go mod vendor`
+- Enable code coverage reporting of dependabot-core
+
+## v0.121.1, 7 October 2020
+
+- Configure git when creating a temp repo for gomod updates
+- Bump jest from 26.5.0 to 26.5.2 in /npm_and_yarn/helpers
+- Bump poetry from 1.1.1 to 1.1.2 in /python/helpers
+- Refactor: reusable VendorDependencies object
+
+## v0.121.0, 6 October 2020
+
+- Add experimental support for `go mod tidy`
+
+## v0.120.5, 6 October 2020
+
+- Allow requirements.txt files of up to 200kb
+- Bump poetry from 1.0.10 to 1.1.1 in /python/helpers
+- Bump jest from 26.4.2 to 26.5.0 in /npm_and_yarn/helpers
+- Reduce docker image size (@wreulicke)
+- Bump phpstan/phpstan from 0.12.47 to 0.12.48 in /composer/helpers
+- Update rubocop requirement from ~> 0.91.0 to ~> 0.92.0 in /common
+- Adds python 3.7.9. (@jeremiq)
+
+## v0.120.4, 1 October 2020
+
+- Go: Bump golang to v1.15.2
+- Bump phpstan/phpstan from 0.12.45 to 0.12.47 in /composer/helpers
+- Upgrade Python to 3.8.6 (@ulgens)
+- Handle empty pipfile requirement string
+- Teach FileFetcher to fetch from disk if local repository clone is present
+- Bundler: refactor DependencySource from LatestVersionFinder
+
+## v0.120.3, 28 September 2020
+
+- Fix uninitialized constant error (`Dependabot::VERSION`) when using `SharedHelpers`
+- Fix `SharedHelpers.excon_defaults` when passing in extra headers
+- Bump phpstan/phpstan from 0.12.44 to 0.12.45 in /composer/helpers
+- Bump eslint from 7.9.0 to 7.10.0 in /npm_and_yarn/helpers
+
+## v0.120.2, 25 September 2020
+
+- Add trailing slash to pypi.org index requests
+- Add a default User-Agent header to excon requests
+- Bump phpstan/phpstan from 0.12.43 to 0.12.44 in /composer/helpers
+
+## v0.120.1, 25 September 2020
+
+- Default to pypi.org instead of pypi.python.org
+
+## v0.120.0, 24 September 2020
+
+- BREAKING: New exception `Dependabot::PullRequestCreator::AnnotationError`
+  Raised when a pull request is created but fails further steps (e.g. assigning reviewer)
+  Code that rescues from `PullRequestCreator` can use the `pull_request` property for the
+  incomplete PR, and the `cause` property for the original error.
+- Allow Azure client to set linked work item (@JamieMagee)
+- Bump eslint from 7.8.1 to 7.9.0 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.42 to 0.12.43 in /composer/helpers
+- Bump prettier from 2.1.1 to 2.1.2 in /npm_and_yarn/helpers
+- Bump rubocop from ~> 0.90.0 to ~> 0.91.0 in /common
+- Bump jason from 1.2.1 to 1.2.2 in /hex/helpers
+
+## v0.119.6, 21 September 2020
+
+- Fix a bug generating commit messages introduced in v0.119.5
+- bundler: add temporary support for persistent_gems_after_clean
+
+## v0.119.5, 21 September 2020
+
+- Fix missing notice in PR content when source text is truncated
+- composer: remove root cache
+- nuget: Force encode nuspec files to utf-8 for regex matching
+
+## v0.119.4, 15 September 2020
+
+- hex: fix lockfile updating transitive dependencies
+- python: fix python path dependencies with file (@lfdebrux)
+- Upgrade elixir/mix to 1.10.4
+- Bump rubocop from ~> 0.88.0 to ~> 0.90.0 in /common
+
+## v0.119.3, 10 September 2020
+
+- Fix for nuget v2 responses that don't specify a base (@ppejovic)
+- formatting changes to avoid linting errors
+- Upgrade elixir/mix to 1.10.0
+- Add OAuth support to Azure client
+- Bump eslint from 7.7.0 to 7.8.1 in /npm_and_yarn/helpers
+- Bump prettier from 2.0.5 to 2.1.1 in /npm_and_yarn/helpers
+
+## v0.119.2, 2 September 2020
+
+- Support cargo 1.46.0 ref not found message
+- Don't downgrade a pinned commit to a tag. (@reitermarkus)
+- Dockerfile.dev: set git author
+
+## v0.119.1, 28 August 2020
+
+- Bump phpstan/phpstan from 0.12.37 to 0.12.39 in /composer/helpers
+- Update to poetry to 1.0.10
+- Add beta support for vendoring git dependencies in Bundler
+
+## v0.119.0, 26 August 2020
+
+- Only replace version part of cargo line
+- Add beta support for vendoring dependencies in Bundler
+
+## v0.118.16, 20 August 2020
+
+- Add a optional repo_contents_path attribute to the file parser/fetcher/updater
+
+## v0.118.15, 20 August 2020
+
+- Handle deleting binary files in the PR creator/updater
+
+## v0.118.14, 20 August 2020
+
+- Support binary and deleted files in PR updater/creator
+
+## v0.118.13, 19 August 2020
+
+- Add deleted and content_encoding properties to dependency_file
+- Bump npm from 6.14.4 to 6.14.8 in /npm_and_yarn/helpers
+- Bump eslint from 7.6.0 to 7.7.0 in /npm_and_yarn/helpers
+- Bump jest from 26.2.2 to 26.4.0 in /npm_and_yarn/helpers
+- Bump phpstan/phpstan from 0.12.34 to 0.12.37 in /composer/helpers
+- Add python 3.7.8
+- Test caching strategy from old circle config
+
+## v0.118.12, 7 August 2020
+
+- docker: consistent indentation of Dockerfile (@localheinz)
+- python: properly escape username nad password in auth URL
+- CI: publish versioned images to DockerHub
+- CI: performance improvements
+
+## v0.118.11, 6 August 2020
+
+- common: increase default http client read timeout
+- go_modules: always return a Version object for indirect dependencies
+- Bump composer/composer from 1.10.9 to 1.10.10 in /composer/helpers
+- Bump pip-tools from 5.3.0 to 5.3.1 in /python/helpers
+- CI: performance improvements
+
 ## v0.118.10, 3 August 2020
 
 - Bump jest from 26.2.1 to 26.2.2 in /npm_and_yarn/helpers

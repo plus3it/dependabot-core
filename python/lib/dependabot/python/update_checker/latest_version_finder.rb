@@ -101,9 +101,7 @@ module Dependabot
         def filter_ignored_versions(versions_array)
           filtered = versions_array.
                      reject { |v| ignore_reqs.any? { |r| r.satisfied_by?(v) } }
-          if @raise_on_ignored && filtered.empty? && versions_array.any?
-            raise Dependabot::AllVersionsIgnored
-          end
+          raise Dependabot::AllVersionsIgnored if @raise_on_ignored && filtered.empty? && versions_array.any?
 
           filtered
         end
@@ -166,6 +164,7 @@ module Dependabot
             end
         end
 
+        # rubocop:disable Metrics/PerceivedComplexity
         def version_details_from_link(link)
           doc = Nokogiri::XML(link)
           filename = doc.at_css("a")&.content
@@ -181,6 +180,7 @@ module Dependabot
             yanked: link&.include?("data-yanked")
           }
         end
+        # rubocop:enable Metrics/PerceivedComplexity
 
         def get_version_from_filename(filename)
           filename.
@@ -214,8 +214,7 @@ module Dependabot
           Excon.get(
             index_url + normalised_name + "/",
             idempotent: true,
-            headers: { "Accept" => "text/html" },
-            **SharedHelpers.excon_defaults
+            **SharedHelpers.excon_defaults(headers: { "Accept" => "text/html" })
           )
         end
 
@@ -223,8 +222,7 @@ module Dependabot
           Excon.get(
             index_url,
             idempotent: true,
-            headers: { "Accept" => "text/html" },
-            **SharedHelpers.excon_defaults
+            **SharedHelpers.excon_defaults(headers: { "Accept" => "text/html" })
           )
         end
 

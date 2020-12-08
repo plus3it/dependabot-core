@@ -86,15 +86,14 @@ module Dependabot
       raise Dependabot::GitDependencyReferenceNotFound, dependency.name
     end
 
+    # rubocop:disable Metrics/PerceivedComplexity
     def local_tag_for_latest_version
       tags =
         local_tags.
         select { |t| version_tag?(t.name) && matches_existing_prefix?(t.name) }
       filtered = tags.
                  reject { |t| tag_included_in_ignore_reqs?(t) }
-      if @raise_on_ignored && tags.any? && filtered.empty?
-        raise Dependabot::AllVersionsIgnored
-      end
+      raise Dependabot::AllVersionsIgnored if @raise_on_ignored && tags.any? && filtered.empty?
 
       tag = filtered.
             reject { |t| tag_is_prerelease?(t) && !wants_prerelease? }.
@@ -114,6 +113,7 @@ module Dependabot
         tag_sha: tag.tag_sha
       }
     end
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def git_repo_reachable?
       local_upload_pack

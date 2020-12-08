@@ -68,9 +68,7 @@ module Dependabot
       def latest_resolvable_version_for_git_dependency
         # If the gem isn't pinned, the latest version is just the latest
         # commit for the specified branch.
-        unless git_commit_checker.pinned?
-          return latest_resolvable_commit_with_unchanged_git_source
-        end
+        return latest_resolvable_commit_with_unchanged_git_source unless git_commit_checker.pinned?
 
         # If the dependency is pinned to a tag that looks like a version then
         # we want to update that tag. The latest version will then be the SHA
@@ -103,9 +101,7 @@ module Dependabot
       def latest_git_version_sha
         # If the gem isn't pinned, the latest version is just the latest
         # commit for the specified branch.
-        unless git_commit_checker.pinned?
-          return git_commit_checker.head_commit_for_current_branch
-        end
+        return git_commit_checker.head_commit_for_current_branch unless git_commit_checker.pinned?
 
         # If the dependency is pinned to a tag that looks like a version then
         # we want to update that tag. The latest version will then be the SHA
@@ -209,6 +205,7 @@ module Dependabot
         ).prepared_dependency_files
       end
 
+      # rubocop:disable Metrics/PerceivedComplexity
       def latest_release_from_hex_registry
         @latest_release_from_hex_registry ||=
           begin
@@ -224,13 +221,12 @@ module Dependabot
               ignore_reqs.any? { |r| r.satisfied_by?(v) }
             end
 
-            if @raise_on_ignored && filtered.empty? && versions.any?
-              raise AllVersionsIgnored
-            end
+            raise AllVersionsIgnored if @raise_on_ignored && filtered.empty? && versions.any?
 
             filtered.max
           end
       end
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def hex_registry_response
         return @hex_registry_response if @hex_registry_requested

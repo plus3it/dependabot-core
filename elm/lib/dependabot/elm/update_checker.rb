@@ -82,9 +82,7 @@ module Dependabot
         filtered = all_versions.
                    reject { |v| ignore_reqs.any? { |r| r.satisfied_by?(v) } }
 
-        if @raise_on_ignored && filtered.empty? && all_versions.any?
-          raise AllVersionsIgnored
-        end
+        raise AllVersionsIgnored if @raise_on_ignored && filtered.empty? && all_versions.any?
 
         filtered
       end
@@ -122,7 +120,7 @@ module Dependabot
       end
 
       def ignore_reqs
-        # Note: we use Gem::Requirement here because ignore conditions will
+        # NOTE: we use Gem::Requirement here because ignore conditions will
         # be passed as Ruby ranges
         ignored_versions.map { |req| Gem::Requirement.new(req.split(",")) }
       end

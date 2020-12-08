@@ -42,9 +42,7 @@ module Dependabot
             end
 
           # If we found a property, return it
-          if node
-            return { file: pom.name, node: node, value: node.content.strip }
-          end
+          return { file: pom.name, node: node, value: node.content.strip } if node
 
           # Otherwise, look for a value in this pom's parent
           return unless (parent = parent_pom(pom))
@@ -86,6 +84,7 @@ module Dependabot
           property_name.sub(/^pom\./, "").sub(/^project\./, "")
         end
 
+        # rubocop:disable Metrics/PerceivedComplexity
         def parent_pom(pom)
           doc = Nokogiri::XML(pom.content)
           doc.remove_namespaces!
@@ -98,14 +97,13 @@ module Dependabot
 
           name = [group_id, artifact_id].join(":")
 
-          if internal_dependency_poms[name]
-            return internal_dependency_poms[name]
-          end
+          return internal_dependency_poms[name] if internal_dependency_poms[name]
 
           return unless version && !version.include?(",")
 
           fetch_remote_parent_pom(group_id, artifact_id, version, pom)
         end
+        # rubocop:enable Metrics/PerceivedComplexity
 
         def parent_repository_urls(pom)
           repositories_finder.repository_urls(

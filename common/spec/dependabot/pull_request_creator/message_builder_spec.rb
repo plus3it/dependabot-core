@@ -404,6 +404,18 @@ RSpec.describe Dependabot::PullRequestCreator::MessageBuilder do
             end
           end
         end
+
+        context "with a vendored .gemspec" do
+          let(:files) { [gemfile, gemfile_lock, gemspec] }
+          let(:gemspec) do
+            Dependabot::DependencyFile.new(
+              name: "vendor/cache/dep/git.gemspec",
+              content: fixture("ruby", "gemspecs", "example")
+            )
+          end
+
+          it { is_expected.to eq("Bump business from 1.4.0 to 1.5.0") }
+        end
       end
 
       context "that uses angular commits" do
@@ -1699,16 +1711,23 @@ RSpec.describe Dependabot::PullRequestCreator::MessageBuilder do
     end
   end
 
-  describe "#commit_message" do
+  describe "#commit_message", :vcr do
     subject(:commit_message) { builder.commit_message }
 
-    before do
-      allow(builder).to receive(:pr_name).and_return("PR name")
-      allow(builder).to receive(:commit_message_intro).and_return("Message")
-      allow(builder).to receive(:metadata_links).and_return("\n\nLinks")
+    let(:expected_commit_message) do
+      <<~MSG.chomp
+        Bump business from 1.4.0 to 1.5.0
+
+        Bumps [business](https://github.com/gocardless/business) from 1.4.0 to 1.5.0.
+        - [Release notes](https://github.com/gocardless/business/releases)
+        - [Changelog](https://github.com/gocardless/business/blob/master/CHANGELOG.md)
+        - [Commits](https://github.com/gocardless/business/compare/v1.4.0...v1.5.0)
+      MSG
     end
 
-    it { is_expected.to eq("PR name\n\nMessage\n\nLinks") }
+    it "renders the expected message" do
+      is_expected.to eql(expected_commit_message)
+    end
 
     context "with a PR name that is too long" do
       before do
