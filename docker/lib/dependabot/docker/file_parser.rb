@@ -24,11 +24,13 @@ module Dependabot
       IMAGE = %r{(?<image>#{NAME_COMPONENT}(?:/#{NAME_COMPONENT})*)}.freeze
 
       FROM = /FROM/i.freeze
+      PLATFORM = /--platform\=(?<platform>\S+)/.freeze
       TAG = /:(?<tag>[\w][\w.-]{0,127})/.freeze
       DIGEST = /@(?<digest>[^\s]+)/.freeze
       NAME = /\s+AS\s+(?<name>[\w-]+)/.freeze
       FROM_LINE =
-        %r{^#{FROM}\s+(#{REGISTRY}/)?#{IMAGE}#{TAG}?#{DIGEST}?#{NAME}?}.freeze
+        %r{^#{FROM}\s+(#{PLATFORM}\s+)?(#{REGISTRY}/)?
+          #{IMAGE}#{TAG}?#{DIGEST}?#{NAME}?}x.freeze
 
       AWS_ECR_URL = /dkr\.ecr\.(?<region>[^.]+).amazonaws\.com/.freeze
 
@@ -40,9 +42,7 @@ module Dependabot
             next unless FROM_LINE.match?(line)
 
             parsed_from_line = FROM_LINE.match(line).named_captures
-            if parsed_from_line["registry"] == "docker.io"
-              parsed_from_line["registry"] = nil
-            end
+            parsed_from_line["registry"] = nil if parsed_from_line["registry"] == "docker.io"
 
             version = version_from(parsed_from_line)
             next unless version
@@ -85,17 +85,11 @@ module Dependabot
       def source_from(parsed_from_line)
         source = {}
 
-        if parsed_from_line.fetch("registry")
-          source[:registry] = parsed_from_line.fetch("registry")
-        end
+        source[:registry] = parsed_from_line.fetch("registry") if parsed_from_line.fetch("registry")
 
-        if parsed_from_line.fetch("tag")
-          source[:tag] = parsed_from_line.fetch("tag")
-        end
+        source[:tag] = parsed_from_line.fetch("tag") if parsed_from_line.fetch("tag")
 
-        if parsed_from_line.fetch("digest")
-          source[:digest] = parsed_from_line.fetch("digest")
-        end
+        source[:digest] = parsed_from_line.fetch("digest") if parsed_from_line.fetch("digest")
 
         source
       end

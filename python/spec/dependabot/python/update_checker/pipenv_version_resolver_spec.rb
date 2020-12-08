@@ -144,7 +144,7 @@ RSpec.describe namespace::PipenvVersionResolver do
             expect(error.message).to eq(
               "pipenv.patched.notpip._internal.exceptions."\
               "UnsupportedPythonVersion: futures requires Python '>=2.6, <3' "\
-              "but the running Python is 3.7.7"
+              "but the running Python is 3.7.9"
             )
           end
       end
@@ -255,7 +255,7 @@ RSpec.describe namespace::PipenvVersionResolver do
                 to start_with("Dependabot detected the following Python")
               expect(error.message).to include("3.4.*")
               expect(error.message).
-                to include("supported in Dependabot: 3.8.5, 3.8.4, 3.8.3")
+                to include("supported in Dependabot: 3.9.0, 3.8.6, 3.8.5")
             end
         end
       end
@@ -403,7 +403,7 @@ RSpec.describe namespace::PipenvVersionResolver do
             "password" => "token"
           }, {
             "type" => "python_index",
-            "index-url" => "https://pypi.python.org/simple"
+            "index-url" => "https://pypi.org/simple"
           }]
         end
 
@@ -465,6 +465,35 @@ RSpec.describe namespace::PipenvVersionResolver do
             expect(error.message).to include(
               "Could not find a version that matches "\
               "chardet<3.1.0,==3.0.0,>=3.0.2\n"
+            )
+          end
+      end
+    end
+
+    context "with a missing system libary" do
+      # NOTE: Attempt to update an unrelated dependency (tensorflow) to cause
+      # resolution to fail for rtree which has a system dependency on
+      # libspatialindex which isn't installed in dependabot-core's Dockerfile.
+      let(:dependency_files) do
+        project_dependency_files("pipenv/missing-system-library")
+      end
+      let(:updated_requirement) { "==2.3.1" }
+      let(:dependency_name) { "tensorflow" }
+      let(:dependency_version) { "2.1.0" }
+      let(:dependency_requirements) do
+        [{
+          file: "Pipfile",
+          requirement: "==2.1.0",
+          groups: ["default"],
+          source: nil
+        }]
+      end
+
+      it "raises a helpful error" do
+        expect { subject }.
+          to raise_error(Dependabot::DependencyFileNotResolvable) do |error|
+            expect(error.message).to include(
+              "Pipenv failed to install \"rtree\""
             )
           end
       end

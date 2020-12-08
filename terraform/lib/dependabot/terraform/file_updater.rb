@@ -131,7 +131,7 @@ module Dependabot
         # For modules we can do better - filter for module blocks that use the
         # name of the dependency
         /
-          module\s+["']#{Regexp.escape(dependency.name)}["']\s*\{
+          module\s+["']?#{Regexp.escape(dependency.name)}["']?\s*\{
           (?:(?!^\}).)*
         /mx
       end

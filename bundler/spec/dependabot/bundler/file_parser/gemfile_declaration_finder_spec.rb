@@ -11,7 +11,12 @@ RSpec.describe Dependabot::Bundler::FileParser::GemfileDeclarationFinder do
   end
 
   let(:dependency) do
-    ::Bundler::Dependency.new(dependency_name, dependency_requirement_sting)
+    dep = ::Bundler::Dependency.new(dependency_name,
+                                    dependency_requirement_sting)
+    {
+      "name" => dep.name,
+      "requirement" => dep.requirement.to_s
+    }
   end
   let(:dependency_name) { "business" }
   let(:dependency_requirement_sting) { "~> 1" }
@@ -82,7 +87,7 @@ RSpec.describe Dependabot::Bundler::FileParser::GemfileDeclarationFinder do
         end
         let(:dependency_requirement_sting) { nil }
 
-        # Note: It would be equally valid to return `nil` here
+        # NOTE: It would be equally valid to return `nil` here
         it { is_expected.to eq(">= 0") }
       end
 

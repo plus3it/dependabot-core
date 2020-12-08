@@ -100,9 +100,7 @@ module Dependabot
           def replace_version_assignments(node)
             return unless node.is_a?(Parser::AST::Node)
 
-            if node_assigns_to_version_constant?(node)
-              return replace_constant(node)
-            end
+            return replace_constant(node) if node_assigns_to_version_constant?(node)
 
             node.children.each { |child| replace_version_assignments(child) }
           end
@@ -110,9 +108,7 @@ module Dependabot
           def replace_version_constant_references(node)
             return unless node.is_a?(Parser::AST::Node)
 
-            if node_is_version_constant?(node)
-              return replace(node.loc.expression, %("#{replacement_version}"))
-            end
+            return replace(node.loc.expression, %("#{replacement_version}")) if node_is_version_constant?(node)
 
             node.children.each do |child|
               replace_version_constant_references(child)
@@ -122,9 +118,7 @@ module Dependabot
           def replace_file_assignments(node)
             return unless node.is_a?(Parser::AST::Node)
 
-            if node_assigns_files_to_var?(node)
-              return replace_file_assignment(node)
-            end
+            return replace_file_assignment(node) if node_assigns_files_to_var?(node)
 
             node.children.each { |child| replace_file_assignments(child) }
           end
@@ -132,9 +126,7 @@ module Dependabot
           def replace_require_paths_assignments(node)
             return unless node.is_a?(Parser::AST::Node)
 
-            if node_assigns_require_paths?(node)
-              return replace_require_paths_assignment(node)
-            end
+            return replace_require_paths_assignment(node) if node_assigns_require_paths?(node)
 
             node.children.each do |child|
               replace_require_paths_assignments(child)
@@ -243,7 +235,7 @@ module Dependabot
             return unless node.is_a?(Parser::AST::Node)
 
             if unnecessary_assignment?(node) &&
-               node.children.last&.location&.respond_to?(:heredoc_end)
+               node.children.last&.location.respond_to?(:heredoc_end)
               range_to_remove = node.loc.expression.join(
                 node.children.last.location.heredoc_end
               )

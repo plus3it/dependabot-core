@@ -120,6 +120,10 @@ RSpec.describe Dependabot::PullRequestCreator::Github do
       to_return(status: 200,
                 body: fixture("github", "create_label.json"),
                 headers: json_header)
+    stub_request(:post, "#{repo_api_url}/git/blobs").
+      to_return(status: 200,
+                body: fixture("github", "create_blob.json"),
+                headers: json_header)
 
     service_pack_url =
       "https://github.com/gocardless/bump.git/info/refs"\
@@ -222,6 +226,85 @@ RSpec.describe Dependabot::PullRequestCreator::Github do
                    mode: "100644",
                    type: "blob",
                    content: "codes"
+                 }]
+               })
+
+        expect(WebMock).
+          to have_requested(:post, "#{repo_api_url}/git/commits")
+      end
+    end
+
+    context "with a binary file" do
+      let(:gem_content) do
+        Base64.encode64(fixture("ruby", "gems", "addressable-2.7.0.gem"))
+      end
+
+      let(:files) do
+        [
+          Dependabot::DependencyFile.new(
+            name: "addressable-2.7.0.gem",
+            directory: "vendor/cache",
+            content: gem_content,
+            content_encoding:
+              Dependabot::DependencyFile::ContentEncoding::BASE64
+          )
+        ]
+      end
+      let(:sha) { "3a0f86fb8db8eea7ccbb9a95f325ddbedfb25e15" }
+
+      it "creates a git blob and pushes a commit to GitHub" do
+        creator.create
+
+        expect(WebMock).
+          to have_requested(:post, "#{repo_api_url}/git/blobs").
+          with(body: {
+                 content: gem_content,
+                 encoding: "base64"
+               })
+
+        expect(WebMock).
+          to have_requested(:post, "#{repo_api_url}/git/trees").
+          with(body: {
+                 base_tree: "basecommitsha",
+                 tree: [{
+                   path: "vendor/cache/addressable-2.7.0.gem",
+                   mode: "100644",
+                   type: "blob",
+                   sha: sha
+                 }]
+               })
+
+        expect(WebMock).
+          to have_requested(:post, "#{repo_api_url}/git/commits")
+      end
+    end
+
+    context "with a deleted file" do
+      let(:files) do
+        [
+          Dependabot::DependencyFile.new(
+            name: "addressable-2.7.0.gem",
+            directory: "vendor/cache",
+            content: nil,
+            deleted: true,
+            content_encoding:
+              Dependabot::DependencyFile::ContentEncoding::BASE64
+          )
+        ]
+      end
+
+      it "pushes a commit to GitHub" do
+        creator.create
+
+        expect(WebMock).
+          to have_requested(:post, "#{repo_api_url}/git/trees").
+          with(body: {
+                 base_tree: "basecommitsha",
+                 tree: [{
+                   path: "vendor/cache/addressable-2.7.0.gem",
+                   mode: "100644",
+                   type: "blob",
+                   sha: nil
                  }]
                })
 
@@ -935,6 +1018,62 @@ RSpec.describe Dependabot::PullRequestCreator::Github do
 
         it "quietly ignores the error" do
           expect(creator.create.title).to eq("new-feature")
+        end
+      end
+    end
+
+    context "when labelling fails" do
+      context "with internal server error" do
+        before do
+          stub_request(:post, "#{repo_api_url}/issues/1347/labels").
+            to_return(status: 500,
+                      body: "{}",
+                      headers: json_header)
+        end
+
+        it "raises helpful error" do
+          msg = "POST https://api.github.com/repos/gocardless/bump/issues/"\
+                "1347/labels: 500 - "
+          expect { creator.create }.to raise_error(
+            (an_instance_of(Dependabot::PullRequestCreator::AnnotationError).
+              and having_attributes(message: msg).
+              and having_attributes(
+                cause: an_instance_of(Octokit::InternalServerError)
+              ).
+              and having_attributes(
+                pull_request: having_attributes(number: 1347)
+              )
+            )
+          )
+        end
+      end
+
+      context "with disabled account error" do
+        before do
+          stub_request(:post, "#{repo_api_url}/issues/1347/labels").
+            to_return(status: 403,
+                      body: '{"error":"Account `gocardless\' is disabled. '\
+                            'Please ask the owner to check their account."}',
+                      headers: json_header)
+        end
+
+        it "raises helpful error" do
+          msg = "POST https://api.github.com/repos/gocardless/bump/issues/"\
+                "1347/labels: 403 - Error: Account `gocardless' is disabled. "\
+                "Please ask the owner to check their account."
+          expect { creator.create }.to raise_error(
+            (an_instance_of(Dependabot::PullRequestCreator::AnnotationError).
+              and having_attributes(message: msg).
+              and having_attributes(
+                cause: an_instance_of(
+                  Dependabot::PullRequestCreator::RepoDisabled
+                )
+              ).
+              and having_attributes(
+                pull_request: having_attributes(number: 1347)
+              )
+            )
+          )
         end
       end
     end

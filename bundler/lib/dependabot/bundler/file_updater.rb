@@ -2,6 +2,8 @@
 
 require "dependabot/file_updaters"
 require "dependabot/file_updaters/base"
+require "dependabot/bundler/native_helpers"
+require "dependabot/file_updaters/vendor_updater"
 
 module Dependabot
   module Bundler
@@ -20,6 +22,8 @@ module Dependabot
         ]
       end
 
+      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/AbcSize
       def updated_dependency_files
         updated_files = []
 
@@ -51,17 +55,46 @@ module Dependabot
         end
 
         check_updated_files(updated_files)
+
+        base_dir = updated_files.first.directory
+        vendor_updater.
+          updated_vendor_cache_files(base_directory: base_dir).
+          each do |file|
+          updated_files << file
+        end
+
         updated_files
       end
+      # rubocop:enable Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/AbcSize
 
       private
+
+      # Dynamically fetch the vendor cache folder from bundler
+      def vendor_cache_dir
+        return @vendor_cache_dir if defined?(@vendor_cache_dir)
+
+        @vendor_cache_dir =
+          SharedHelpers.run_helper_subprocess(
+            command: NativeHelpers.helper_path,
+            function: "vendor_cache_dir",
+            args: {
+              dir: repo_contents_path
+            }
+          )
+      end
+
+      def vendor_updater
+        Dependabot::FileUpdaters::VendorUpdater.new(
+          repo_contents_path: repo_contents_path,
+          vendor_dir: vendor_cache_dir
+        )
+      end
 
       def check_required_files
         file_names = dependency_files.map(&:name)
 
-        if lockfile && !gemfile
-          raise "A Gemfile must be provided if a lockfile is!"
-        end
+        raise "A Gemfile must be provided if a lockfile is!" if lockfile && !gemfile
 
         return if file_names.any? { |name| name.match?(%r{^[^/]*\.gemspec$}) }
         return if gemfile
@@ -116,6 +149,7 @@ module Dependabot
           LockfileUpdater.new(
             dependencies: dependencies,
             dependency_files: dependency_files,
+            repo_contents_path: repo_contents_path,
             credentials: credentials
           ).updated_lockfile_content
       end
