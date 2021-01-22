@@ -13,7 +13,6 @@ require "dependabot/errors"
 
 module Dependabot
   module Terraform
-    # rubocop:disable Metrics/ClassLength
     class FileParser < Dependabot::FileParsers::Base
       require "dependabot/file_parsers/base/dependency_set"
 
@@ -49,21 +48,26 @@ module Dependabot
       end
 
       def parse_terragrunt_file(file)
-        modules = parsed_file(file).fetch("terraform", []).first || {}
-        modules.each do |details|
-          next unless details.is_a?(Hash)
-          next unless details.key?("terraform")
-            @dependency_set << build_terragrunt_dependency(file, details)
+        modules = parsed_file(file).fetch("terraform", []).
+                  map { |k, v| [k, v] }.to_h
+        modules.each do |name, details|
+          next unless name == "source"
+
+          @dependency_set << build_terraform_dependency(
+            file, "terragrunt source", [Hash[name, details]]
+          )
         end
       end
 
       def parse_terragrunt_legacy_file(file)
-        modules = parsed_file(file).fetch("terragrunt", []).first || {}
-        modules = modules.fetch("terraform", [])
-        modules.each do |details|
-          next unless details["source"]
+        modules = parsed_file(file).fetch("terraform", []).
+                  map { |k, v| [k, v] }.to_h
+        modules.each do |name, details|
+          next unless name == "source"
 
-          @dependency_set << build_terragrunt_dependency(file, details)
+          @dependency_set << build_terraform_dependency(
+            file, "terragrunt source", [Hash[name, details]]
+          )
         end
       end
 
@@ -323,5 +327,3 @@ end
 
 Dependabot::FileParsers.
   register("terraform", Dependabot::Terraform::FileParser)
-
-# rubocop:enable Metrics/ClassLength
