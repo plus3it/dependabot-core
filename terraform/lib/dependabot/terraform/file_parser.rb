@@ -66,7 +66,7 @@ module Dependabot
           next unless name == "source"
 
           @dependency_set << build_terraform_dependency(
-            file, "terragrunt source", [Hash[name, details]]
+            file, "terragrunt_source", [Hash[name, details]]
           )
         end
       end
@@ -87,29 +87,6 @@ module Dependabot
           package_manager: "terraform",
           requirements: [
             requirement: version_req,
-            groups: [],
-            file: file.name,
-            source: source
-          ]
-        )
-      end
-
-      def build_terragrunt_dependency(file, details)
-        source = source_from(details)
-        dep_name =
-          if Source.from_url(source[:url])
-            Source.from_url(source[:url]).repo
-          else
-            source[:url]
-          end
-
-        version = version_from_ref(source[:ref])
-        Dependency.new(
-          name: dep_name,
-          version: version,
-          package_manager: "terraform",
-          requirements: [
-            requirement: nil,
             groups: [],
             file: file.name,
             source: source
