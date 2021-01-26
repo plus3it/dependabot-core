@@ -19,4 +19,7 @@ Terraform support for [`dependabot-core`][core-repo].
    $ bundle exec rspec spec
    ```
 
+Note:  terraform-config-inspect is expected to be found in
+`/opt/go/gopath/bin`.
+
 [core-repo]: https://github.com/dependabot/dependabot-core

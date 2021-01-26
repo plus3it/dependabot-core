@@ -13,7 +13,6 @@ require "dependabot/errors"
 
 module Dependabot
   module Terraform
-    # rubocop:disable Metrics/ClassLength
     class FileParser < Dependabot::FileParsers::Base
       require "dependabot/file_parsers/base/dependency_set"
 
@@ -49,29 +48,49 @@ module Dependabot
       end
 
       def parse_terragrunt_file(file)
-        modules = parsed_file(file).fetch("terraform", []).first || {}
-        modules.each do |details|
-          next unless details.is_a?(Hash)
-          next unless details.key?("terraform")
-            @dependency_set << build_terragrunt_dependency(file, details)
+        modules = parsed_file(file).fetch("terraform", []).
+                  map { |k, v| [k, v] }.to_h
+
+        modules.each do |name, details|
+          next unless name == "source"
+
+          @dependency_set << build_terraform_dependency(
+            file, "", [Hash[name, details]]
+          )
         end
       end
 
       def parse_terragrunt_legacy_file(file)
-        modules = parsed_file(file).fetch("terragrunt", []).first || {}
-        modules = modules.fetch("terraform", [])
-        modules.each do |details|
-          next unless details["source"]
+        modules = parsed_file(file).fetch("terragrunt", [])[0].
+                  map { |k, v| [k, v] }.to_h
 
-          @dependency_set << build_terragrunt_dependency(file, details)
+        return unless modules.key?("terraform")
+
+        modules["terraform"].each do |terraform_module|
+          terraform_module.each do |name, details|
+            next unless name == "source"
+
+            @dependency_set << build_terraform_dependency(
+              file, "", [Hash[name, details]]
+            )
+          end
+        end
+      end
+
+      def dependency_name(source, name)
+        if name != ""
+          source[:type] == "registry" ? source[:module_identifier] : name
+        elsif Source.from_url(source[:url])
+          Source.from_url(source[:url]).repo
+        else
+          source[:url]
         end
       end
 
       def build_terraform_dependency(file, name, details)
         details = details.first if details.is_a?(Array)
         source = source_from(details)
-        dep_name =
-          source[:type] == "registry" ? source[:module_identifier] : name
+        dep_name = dependency_name(source, name)
         version_req = details["version"]&.strip
         version =
           if source[:type] == "git" then version_from_ref(source[:ref])
@@ -83,29 +102,6 @@ module Dependabot
           package_manager: "terraform",
           requirements: [
             requirement: version_req,
-            groups: [],
-            file: file.name,
-            source: source
-          ]
-        )
-      end
-
-      def build_terragrunt_dependency(file, details)
-        source = source_from(details)
-        dep_name =
-          if Source.from_url(source[:url])
-            Source.from_url(source[:url]).repo
-          else
-            source[:url]
-          end
-
-        version = version_from_ref(source[:ref])
-        Dependency.new(
-          name: dep_name,
-          version: version,
-          package_manager: "terraform",
-          requirements: [
-            requirement: nil,
             groups: [],
             file: file.name,
             source: source
@@ -323,5 +319,3 @@ end
 
 Dependabot::FileParsers.
   register("terraform", Dependabot::Terraform::FileParser)
-
-# rubocop:enable Metrics/ClassLength
