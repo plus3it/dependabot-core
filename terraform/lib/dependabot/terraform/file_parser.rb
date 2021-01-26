@@ -60,14 +60,22 @@ module Dependabot
       end
 
       def parse_terragrunt_legacy_file(file)
-        modules = parsed_file(file).fetch("terraform", []).
-                  map { |k, v| [k, v] }.to_h
-        modules.each do |name, details|
-          next unless name == "source"
+        module_list = parsed_file(file).fetch("terragrunt", [])
 
-          @dependency_set << build_terraform_dependency(
-            file, "", [Hash[name, details]]
-          )
+        module_list.each do |modules|
+          modules.each do |terragrunt_module, terragrunt_module_details|
+            next unless terragrunt_module == "terraform"
+
+            terragrunt_module_details.each do |module_details|
+              module_details.each do |name, details|
+                next unless name == "source"
+
+                @dependency_set << build_terraform_dependency(
+                  file, "", [Hash[name, details]]
+                )
+              end
+            end
+          end
         end
       end
 
