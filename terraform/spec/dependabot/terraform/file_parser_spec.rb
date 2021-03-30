@@ -574,6 +574,76 @@ RSpec.describe Dependabot::Terraform::FileParser do
       end
     end
 
+    context "with a legacy terragrunt file, no terraform key" do
+      let(:files) { [terragrunt_file] }
+      let(:terragrunt_file) do
+        Dependabot::DependencyFile.new(
+          name: "main.tfvars",
+          content: terragrunt_body
+        )
+      end
+      let(:terragrunt_body) do
+        fixture("config_files", terragrunt_fixture_name)
+      end
+      let(:terragrunt_fixture_name) { "terraform_noterraform.tfvars" }
+      its(:length) { is_expected.to eq(0) }
+    end
+
+    context "with a legacy terragrunt file, terraform key, no source" do
+      let(:files) { [terragrunt_file] }
+      let(:terragrunt_file) do
+        Dependabot::DependencyFile.new(
+          name: "main.tfvars",
+          content: terragrunt_body
+        )
+      end
+      let(:terragrunt_body) do
+        fixture("config_files", terragrunt_fixture_name)
+      end
+      let(:terragrunt_fixture_name) { "terraform_nosource.tfvars" }
+      its(:length) { is_expected.to eq(0) }
+    end
+
+    context "with a legacy terragrunt file, terraform key with source" do
+      let(:files) { [terragrunt_file] }
+      let(:terragrunt_file) do
+        Dependabot::DependencyFile.new(
+          name: "main.tfvars",
+          content: terragrunt_body
+        )
+      end
+      let(:terragrunt_body) do
+        fixture("config_files", terragrunt_fixture_name)
+      end
+      let(:terragrunt_fixture_name) { "terraform.tfvars" }
+
+      its(:length) { is_expected.to eq(1) }
+
+      describe "the first dependency" do
+        subject(:dependency) { dependencies.first }
+        let(:expected_requirements) do
+          [{
+            requirement: nil,
+            groups: [],
+            file: "main.tfvars",
+            source: {
+              type: "git",
+              url: "git@github.com:gruntwork-io/modules-example.git",
+              branch: nil,
+              ref: "v0.0.2"
+            }
+          }]
+        end
+
+        it "has the right details" do
+          expect(dependency).to be_a(Dependabot::Dependency)
+          expect(dependency.name).to eq("gruntwork-io/modules-example")
+          expect(dependency.version).to eq("0.0.2")
+          expect(dependency.requirements).to eq(expected_requirements)
+        end
+      end
+    end
+
     context "with a legacy terragrunt file" do
       let(:files) { [terragrunt_file] }
       let(:terragrunt_file) do
@@ -652,6 +722,21 @@ RSpec.describe Dependabot::Terraform::FileParser do
           expect(dependency.requirements).to eq(expected_requirements)
         end
       end
+    end
+
+    context "with a terragrunt file with no source" do
+      let(:files) { [terragrunt_file] }
+      let(:terragrunt_file) do
+        Dependabot::DependencyFile.new(
+          name: "main.hcl",
+          content: terragrunt_body
+        )
+      end
+      let(:terragrunt_body) do
+        fixture("config_files", terragrunt_fixture_name)
+      end
+      let(:terragrunt_fixture_name) { "terragrunt_nosource.hcl" }
+      its(:length) { is_expected.to eq(0) }
     end
   end
 end
