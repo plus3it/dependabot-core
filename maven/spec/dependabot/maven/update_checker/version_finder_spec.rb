@@ -188,6 +188,19 @@ RSpec.describe Dependabot::Maven::UpdateChecker::VersionFinder do
       its([:version]) { is_expected.to eq(version_class.new("22.0")) }
     end
 
+    context "when the user has asked to ignore several major versions" do
+      let(:ignored_versions) { ["[23.0,24),[22.0,23)"] }
+      let(:dependency_version) { "17.0" }
+      let(:maven_central_version_files_url) do
+        "https://repo.maven.apache.org/maven2/"\
+        "com/google/guava/guava/21.0/guava-21.0.jar"
+      end
+      let(:maven_central_version_files) do
+        fixture("maven_central_version_files", "guava-22.0.html")
+      end
+      its([:version]) { is_expected.to eq(version_class.new("21.0")) }
+    end
+
     context "when a version range is specified using Ruby syntax" do
       let(:ignored_versions) { [">= 23.0, < 24"] }
       let(:dependency_version) { "17.0" }
@@ -241,6 +254,41 @@ RSpec.describe Dependabot::Maven::UpdateChecker::VersionFinder do
         is_expected.to eq("https://private.registry.org/repo")
       end
 
+      context "that is a gitlab maven repository" do
+        let(:credentials) do
+          [
+            {
+              "type" => "maven_repository",
+              "url" => "https://private.registry.org/api/v4/groups/-/packages/maven/"
+            },
+            {
+              "type" => "git_source",
+              "host" => "private.registry.org",
+              "username" => "x-access-token",
+              "password" => "customToken"
+            }
+          ]
+        end
+
+        let(:private_registry_metadata_url) do
+          "https://private.registry.org/api/v4/groups/-/packages/maven/"\
+          "com/google/guava/guava/maven-metadata.xml"
+        end
+
+        before do
+          stub_request(:get, maven_central_metadata_url).
+            to_return(status: 404)
+          stub_request(:get, private_registry_metadata_url).
+            with(headers: { "Private-Token" => "customToken" }).
+            to_return(status: 200, body: maven_central_releases)
+        end
+
+        its([:version]) { is_expected.to eq(version_class.new("23.6-jre")) }
+        its([:source_url]) do
+          is_expected.to eq("https://private.registry.org/api/v4/groups/-/packages/maven")
+        end
+      end
+
       context "but no auth details" do
         let(:credentials) do
           [{
@@ -269,9 +317,86 @@ RSpec.describe Dependabot::Maven::UpdateChecker::VersionFinder do
             error_class = Dependabot::PrivateSourceAuthenticationFailure
             expect { subject }.
               to raise_error(error_class) do |error|
-                expect(error.source).to eq("https://private.registry.org/repo")
-              end
+              expect(error.source).to eq("https://private.registry.org/repo")
+            end
           end
+        end
+      end
+    end
+
+    context "with multiple repositories from credentials" do
+      let(:credentials) do
+        [
+          {
+            "type" => "maven_repository",
+            "url" => "https://private.registry.org/repo/",
+            "username" => "dependabot",
+            "password" => "dependabotPassword"
+          },
+          {
+            "type" => "maven_repository",
+            "url" => "https://private.registry.org/repo/"
+          },
+          {
+            "type" => "maven_repository",
+            "url" => "https://private.registry.org/repo2/",
+            "username" => "dependabot2",
+            "password" => "dependabotPassword2"
+          },
+          {
+            "type" => "maven_repository",
+            "url" => "https://private.registry.org/api/v4/groups/-/packages/maven/"
+          },
+          {
+            "type" => "git_source",
+            "host" => "private.registry.org",
+            "username" => "x-access-token",
+            "password" => "customToken"
+          }
+        ]
+      end
+
+      let(:private_registry_metadata_url) do
+        "https://private.registry.org/repo/"\
+        "com/google/guava/guava/maven-metadata.xml"
+      end
+
+      let(:second_repo) do
+        "https://private.registry.org/repo2/"\
+        "com/google/guava/guava/maven-metadata.xml"
+      end
+
+      let(:gitlab_maven_repo) do
+        "https://private.registry.org/api/v4/groups/-/packages/maven/"\
+        "com/google/guava/guava/maven-metadata.xml"
+      end
+
+      before do
+        stub_request(:get, maven_central_metadata_url).
+          to_return(status: 404)
+        stub_request(:get, second_repo).
+          with(basic_auth: %w(dependabot2 dependabotPassword2)).
+          to_return(status: 404)
+        stub_request(:get, gitlab_maven_repo).
+          with(headers: { "Private-Token" => "customToken" }).
+          to_return(status: 404)
+        stub_request(:get, private_registry_metadata_url).
+          with(basic_auth: %w(dependabot dependabotPassword)).
+          to_return(status: 200, body: maven_central_releases)
+      end
+
+      its([:version]) { is_expected.to eq(version_class.new("23.6-jre")) }
+      its([:source_url]) do
+        is_expected.to eq("https://private.registry.org/repo")
+      end
+    end
+
+    context "with an invalid repository url specified" do
+      let(:dependency_files) { project_dependency_files("invalid_repository_url") }
+
+      it "raises a helpful error" do
+        expect { subject }.to raise_error(Dependabot::DependencyFileNotResolvable) do |error|
+          expect(error.message).to start_with("bad URI(is not URI?): \"http://host:port/content/groups/public")
         end
       end
     end

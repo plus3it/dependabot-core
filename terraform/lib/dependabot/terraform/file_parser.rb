@@ -62,7 +62,7 @@ module Dependabot
 
       def parse_terragrunt_legacy_file(file)
         content = parsed_file(file).fetch("terragrunt", [])
-        return unless not content.empty?
+        return if content.empty?
 
         modules = content[0].map { |k, v| [k, v] }.to_h
         return unless modules.key?("terraform")

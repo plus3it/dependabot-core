@@ -70,6 +70,21 @@ RSpec.describe Dependabot::Docker::UpdateChecker do
       it { is_expected.to be_falsey }
     end
 
+    context "given an outdated requirement" do
+      let(:version) { "17.10" }
+
+      before do
+        dependency.requirements << {
+          requirement: nil,
+          groups: [],
+          file: "Dockerfile.other",
+          source: { tag: "17.04" }
+        }
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
     context "given a purely numeric version" do
       let(:version) { "1234567890" }
       it { is_expected.to be_truthy }
@@ -173,6 +188,11 @@ RSpec.describe Dependabot::Docker::UpdateChecker do
     context "when the latest version is being ignored" do
       let(:ignored_versions) { [">= 17.10"] }
       it { is_expected.to eq("17.04") }
+    end
+
+    context "when ignoring multiple versions" do
+      let(:ignored_versions) { [">= 17.10, < 17.2"] }
+      it { is_expected.to eq("17.10") }
     end
 
     context "when all versions are being ignored" do
@@ -668,6 +688,38 @@ RSpec.describe Dependabot::Docker::UpdateChecker do
                 tag: "17.10"
               }
             }]
+          )
+      end
+    end
+
+    context "when specified with tags with different prefixes in separate files" do
+      let(:version) { "trusty-20170728" }
+      let(:source) { { tag: "trusty-20170728" } }
+
+      before do
+        dependency.requirements << {
+          requirement: nil,
+          groups: [],
+          file: "Dockerfile.other",
+          source: { tag: "xenial-20170802" }
+        }
+      end
+
+      it "updates the tags" do
+        expect(checker.updated_requirements).
+          to eq(
+            [{
+              requirement: nil,
+              groups: [],
+              file: "Dockerfile",
+              source: { tag: "trusty-20170817" }
+            },
+             {
+               requirement: nil,
+               groups: [],
+               file: "Dockerfile.other",
+               source: { tag: "xenial-20170915" }
+             }]
           )
       end
     end

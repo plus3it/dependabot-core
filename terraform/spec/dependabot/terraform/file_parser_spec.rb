@@ -199,7 +199,7 @@ RSpec.describe Dependabot::Terraform::FileParser do
               expect(err.file_path).to eq("/main.tf")
               expect(err.message).to eq(
                 "hcl2json: unable to parse HCL: object"\
-                " expected closing RBRACE got: EOF\nterraform-config-inspect: "
+                " expected closing RBRACE got: EOF\nterraform-config-inspect:"
               )
             end
         end
