@@ -25,25 +25,39 @@ RSpec.describe Dependabot::Config::File do
       it "maps package_manager to package-ecosystem" do
         update_config = config.update_config("npm_and_yarn")
         expect(update_config).to be_a(Dependabot::Config::UpdateConfig)
-        expect(update_config.interval).to eq("weekly")
+        expect(update_config.commit_message_options.prefix).to eq("no directory")
       end
 
       it "matches directory" do
-        update_config = config.update_config("npm_and_yarn", directory: "/monthly")
+        update_config = config.update_config("npm_and_yarn", directory: "/target")
         expect(update_config).to be_a(Dependabot::Config::UpdateConfig)
-        expect(update_config.interval).to eq("monthly")
+        expect(update_config.commit_message_options.prefix).to eq("with directory")
       end
 
       it "matches target-branch" do
         update_config = config.update_config("npm_and_yarn", directory: "/target", target_branch: "the-awesome-branch")
         expect(update_config).to be_a(Dependabot::Config::UpdateConfig)
-        expect(update_config.interval).to eq("daily")
+        expect(update_config.commit_message_options.prefix).to eq("with directory and branch")
       end
 
       it "returns empty when not found" do
         update_config = config.update_config("bundler")
         expect(update_config).to be_a(Dependabot::Config::UpdateConfig)
-        expect(update_config.interval).to be_nil
+        expect(update_config.commit_message_options.prefix).to be_nil
+      end
+    end
+
+    describe "#parse" do
+      let(:config) { Dependabot::Config::File.parse(fixture("configfile", "ignore-conditions.yml")) }
+      let(:update_config) { config.update_config("npm_and_yarn") }
+
+      it "loads ignore conditions" do
+        expect(update_config.ignore_conditions.length).to eq(3)
+      end
+
+      it "passes update-types" do
+        types_ignore = update_config.ignore_conditions.find { |ic| ic.dependency_name == "@types/node" }
+        expect(types_ignore.update_types).to eq(["version-update:semver-patch"])
       end
     end
   end
