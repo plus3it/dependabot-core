@@ -136,7 +136,7 @@ module Dependabot
       def fetch_file_from_host(filename, type: "file", fetch_submodules: false)
         return load_cloned_file_if_present(filename) unless repo_contents_path.nil?
 
-        path = Pathname.new(File.join(directory, File.basename(filename))).cleanpath.to_path
+        path = Pathname.new(File.join(directory, filename)).cleanpath.to_path
         content = _fetch_file_content(path, fetch_submodules: fetch_submodules)
         type = @linked_paths.key?(path.gsub(%r{^/}, "")) ? "symlink" : type
 
